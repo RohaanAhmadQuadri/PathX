@@ -1,0 +1,561 @@
+/* ============================================================
+   PathX - Pathfinding Visualizer Stylesheet
+   Supports Light & Dark Modes via CSS Custom Properties
+   ============================================================ */
+
+:root,
+[data-theme="light"] {
+  --bg-page: #f1f5f9;
+  --bg-panel: #ffffff;
+  --bg-panel-secondary: #f8fafc;
+  --border-panel: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --cell-bg: #ffffff;
+  --cell-border: #e2e8f0;
+  --cell-wall: #1e293b;
+  --cell-visited: #38bdf8;
+  --cell-visited-border: #0284c7;
+  --cell-path: #facc15;
+  --cell-path-border: #ca8a04;
+  --cell-start: #10b981;
+  --cell-end: #ef4444;
+
+  --btn-primary-bg: #2563eb;
+  --btn-primary-hover: #1d4ed8;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f1f5f9;
+  --btn-secondary-hover: #e2e8f0;
+  --btn-secondary-border: #cbd5e1;
+  --btn-secondary-text: #1e293b;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg-page: #090d16;
+  --bg-panel: #111827;
+  --bg-panel-secondary: #1a2234;
+  --border-panel: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  --cell-bg: #111827;
+  --cell-border: #1e293b;
+  --cell-wall: #475569;
+  --cell-visited: #0284c7;
+  --cell-visited-border: #38bdf8;
+  --cell-path: #eab308;
+  --cell-path-border: #fef08a;
+  --cell-start: #10b981;
+  --cell-end: #ef4444;
+
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-hover: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #1f2937;
+  --btn-secondary-hover: #374151;
+  --btn-secondary-border: #374151;
+  --btn-secondary-text: #f3f4f6;
+
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  user-select: none;
+}
+
+/* ============================================================
+   App Layout
+   ============================================================ */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 20px 24px 20px;
+  gap: 16px;
+  flex: 1;
+}
+
+/* ============================================================
+   Controls Header Bar
+   ============================================================ */
+.controls-panel {
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-panel);
+  padding: 12px 24px;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Brand Logo */
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-right: 8px;
+}
+
+.brand-icon {
+  color: #3b82f6;
+  font-size: 1.4rem;
+}
+
+.brand-name .highlight {
+  color: #3b82f6;
+}
+
+/* Control Groups */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Select Input */
+.select-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-panel);
+  background-color: var(--bg-panel-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.select-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.select-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-visualize {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+}
+
+.btn-visualize:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  border-color: var(--btn-secondary-border);
+  color: var(--btn-secondary-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-theme {
+  background-color: var(--btn-secondary-bg);
+  border-color: var(--btn-secondary-border);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  margin-left: auto;
+}
+
+.btn-theme:hover {
+  background-color: var(--btn-secondary-hover);
+}
+
+/* Step Delay Slider */
+.slider-group {
+  min-width: 170px;
+}
+
+.delay-badge {
+  display: inline-block;
+  background-color: var(--bg-panel-secondary);
+  border: 1px solid var(--border-panel);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #3b82f6;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: center;
+}
+
+.slider-input {
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.slider-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Spinner during animation */
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   Stats & Legend Panel
+   ============================================================ */
+.stats-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 1050px;
+}
+
+/* Legend */
+.legend-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  background-color: var(--bg-panel);
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-panel);
+  box-shadow: var(--shadow-sm);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.legend-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid var(--cell-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+}
+
+.legend-start {
+  background-color: var(--cell-start);
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.legend-end {
+  background-color: var(--cell-end);
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.legend-wall {
+  background-color: var(--cell-wall);
+  border-color: var(--cell-wall);
+}
+
+.legend-unvisited {
+  background-color: var(--cell-bg);
+  border-color: var(--cell-border);
+}
+
+.legend-visited {
+  background-color: var(--cell-visited);
+  border-color: var(--cell-visited-border);
+}
+
+.legend-path {
+  background-color: var(--cell-path);
+  border-color: var(--cell-path-border);
+}
+
+/* Stats Line */
+.stats-line {
+  background-color: var(--bg-panel);
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-panel);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.875rem;
+  text-align: center;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-status {
+  color: var(--text-secondary);
+}
+
+.stats-status.status-searching {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.stats-metrics-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stat-badge {
+  color: var(--text-secondary);
+}
+
+.stat-badge strong {
+  color: var(--text-primary);
+}
+
+.status-alert {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] .status-alert {
+  background-color: #450a0a;
+  color: #f87171;
+  border-color: #7f1d1d;
+}
+
+/* ============================================================
+   Grid Container & Cells
+   ============================================================ */
+.grid-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.grid-container {
+  display: grid;
+  /* 40 columns each 25px wide */
+  grid-template-columns: repeat(40, 25px);
+  /* 20 rows each 25px high */
+  grid-template-rows: repeat(20, 25px);
+  border-top: 1px solid var(--cell-border);
+  border-left: 1px solid var(--cell-border);
+  background-color: var(--cell-bg);
+  box-shadow: var(--shadow-md);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Individual Cell */
+.cell {
+  width: 25px;
+  height: 25px;
+  border-right: 1px solid var(--cell-border);
+  border-bottom: 1px solid var(--cell-border);
+  background-color: var(--cell-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.cell-marker {
+  font-size: 0.75rem;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+/* Start Cell */
+.cell-start {
+  background-color: var(--cell-start) !important;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+/* Target / End Cell */
+.cell-end {
+  background-color: var(--cell-end) !important;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* Wall Cell */
+.cell-wall {
+  background-color: var(--cell-wall) !important;
+  border-color: var(--cell-wall);
+  animation-name: wallPop;
+  animation-duration: 0.25s;
+  animation-timing-function: ease-out;
+  animation-delay: 0s;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes wallPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.6;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Visited Cell (Blue Animation) */
+.cell-visited {
+  background-color: var(--cell-visited);
+  border-color: var(--cell-visited-border);
+  animation-name: visitedPulse;
+  animation-duration: 0.6s;
+  animation-timing-function: ease-out;
+  animation-delay: 0s;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes visitedPulse {
+  0% {
+    transform: scale(0.3);
+    background-color: rgba(0, 0, 80, 0.75);
+    border-radius: 100%;
+  }
+  50% {
+    background-color: rgba(14, 165, 233, 0.75);
+  }
+  75% {
+    transform: scale(1.15);
+    background-color: rgba(56, 189, 248, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--cell-visited);
+    border-radius: 0%;
+  }
+}
+
+/* Shortest Path Cell (Yellow Animation) */
+.cell-path {
+  background-color: var(--cell-path) !important;
+  border-color: var(--cell-path-border) !important;
+  animation-name: pathGlow;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+  animation-delay: 0s;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes pathGlow {
+  0% {
+    transform: scale(0.4);
+    background-color: rgba(254, 240, 138, 0.7);
+    border-radius: 50%;
+  }
+  50% {
+    transform: scale(1.2);
+    background-color: rgba(250, 204, 21, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--cell-path);
+    border-radius: 0%;
+  }
+}
