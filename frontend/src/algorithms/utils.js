@@ -5,6 +5,46 @@
  */
 export const ROWS = 20;
 export const COLS = 40;
+export const DEFAULT_WEIGHT = 1;
+export const MUD_WEIGHT = 5;
+
+/**
+ * Returns the traversal cost of entering a given cell.
+ * Normal cells have cost 1; mud cells have cost 5.
+ * 
+ * @param {number} id - Cell ID
+ * @param {Map<number, number>|Object|Set<number>} weights - Cell weights map or set of mud cell IDs
+ * @returns {number} Weight of cell (1 or 5)
+ */
+export function getCellWeight(id, weights) {
+  if (!weights) return DEFAULT_WEIGHT;
+  if (weights instanceof Map) {
+    return weights.get(id) || DEFAULT_WEIGHT;
+  }
+  if (typeof weights.has === 'function' && weights.has(id)) {
+    return MUD_WEIGHT;
+  }
+  if (typeof weights === 'object' && weights[id] !== undefined) {
+    return weights[id];
+  }
+  return DEFAULT_WEIGHT;
+}
+
+/**
+ * Calculates total path cost summing the weights of all cells traversed (excluding start cell).
+ * 
+ * @param {number[]} path - Array of cell IDs in path order
+ * @param {Map<number, number>|Object|Set<number>} weights - Weights map
+ * @returns {number} Total traversal cost
+ */
+export function calculatePathCost(path, weights) {
+  if (!path || path.length <= 1) return 0;
+  let cost = 0;
+  for (let i = 1; i < path.length; i++) {
+    cost += getCellWeight(path[i], weights);
+  }
+  return cost;
+}
 
 /**
  * Returns valid orthogonal (Up, Right, Down, Left) neighbors of a cell.

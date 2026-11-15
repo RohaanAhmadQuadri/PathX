@@ -16,9 +16,10 @@ import { getNeighbors, buildPath } from './utils.js';
  * @param {number} start - Starting cell ID
  * @param {number} end - Target cell ID
  * @param {Set<number>} walls - Set of cell IDs that act as obstacles
+ * @param {Map<number, number>|Object} [weights] - Ignored by BFS (unweighted algorithm)
  * @returns {{ visited: number[], path: number[] }} Explored order and shortest path
  */
-export function bfs(start, end, walls) {
+export function bfs(start, end, walls, weights) {
   // Edge case: Start and End are the same cell
   if (start === end) {
     return { visited: [start], path: [start] };

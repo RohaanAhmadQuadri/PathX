@@ -1,35 +1,47 @@
 # PathX 🧭
 
-An interactive, responsive path-finding visualizer built with **React** showcasing popular graph traversal and search algorithms on a 20×40 grid.
+An interactive, responsive path-finding visualizer built with **React** showcasing popular graph traversal and search algorithms on a 20×40 grid, complete with weighted terrain, side-by-side algorithm comparison, step-by-step playback controls, and a **Node.js/Express + MongoDB** backend to save and share custom mazes.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19-61dafb.svg)
+![Node.js](https://img.shields.io/badge/Node.js-Express-green.svg)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-brightgreen.svg)
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **20×40 Interactive Grid**: Total of 800 cells ($\text{id} = \text{row} \times 40 + \text{col}$).
-- **Drag-and-Drop Controls**:
-  - Reposition **Start** (Green ▶) and **Target** (Red 🎯) points by dragging.
-  - Draw and erase walls seamlessly with click-and-drag.
-- **Pure Function Algorithms**:
-  - All algorithms are pure functions taking `(start, end, walls)` and returning `{ visited, path }` without touching the DOM.
-  - Returns an empty path `[]` if the destination is unreachable.
-- **Algorithms Included**:
-  - **Breadth-First Search (BFS)**: Explores level-by-level using a FIFO queue; guarantees the shortest path on unweighted graphs.
-  - **Depth-First Search (DFS)**: Explores deep paths using a LIFO stack; does not guarantee the shortest path.
-  - **Dijkstra's Algorithm**: Uses an array-backed binary `MinHeap` priority queue with uniform edge relaxation; guarantees optimal shortest path.
-  - **A\* Search**: Uses `MinHeap` and the admissible Manhattan distance heuristic ($f(n) = g(n) + h(n)$); efficiently guides exploration toward the target.
-- **Real-Time Step Animation**:
-  - Visualizes node exploration in animated blue, followed by the shortest path highlighted in glowing yellow.
-  - Uses `setInterval` with an adjustable **Step Delay Slider** (5ms to 60ms).
-- **Comprehensive Statistics**:
-  - Real-time readout of cells explored, path length (steps), algorithm runtime in milliseconds, or "No path found".
-- **Dark Mode Support**:
-  - Built-in theme switcher with smooth CSS transitions and high-contrast color schemes.
-- **Random Maze Generation**:
-  - One-click randomized wall generator (~28% density) keeping endpoints clear.
+### 1. Weighted Cells ("Mud")
+- **Custom Cell Weights**: Right-click (or hold <kbd>W</kbd> and click) any cell to toggle **Mud** (cost 5). Standard cells cost 1.
+- **Visual Distinction**: Mud cells are rendered in rich brown with a distinct badge and legend entry.
+- **Weighted Graph Search**: **Dijkstra** and **A\*** dynamically calculate cumulative edge weights and steer around mud when a lower-cost path exists.
+- **Unweighted Clarification**: A helpful note clarifies that **BFS** and **DFS** are unweighted algorithms that treat all traversals as uniform cost.
+
+### 2. Compare Mode (Side-by-Side)
+- **Dual Algorithm Benchmarking**: Toggle **Compare Mode** to pit any two algorithms against each other (e.g. Dijkstra vs A*).
+- **Synchronized Obstacles**: Both grids share the exact same Start, Target, Walls, and Mud cells.
+- **Comparative Metrics Table**: Evaluates:
+  - Cells explored (efficiency)
+  - Path length (steps taken)
+  - Total path cost (accounting for weights)
+  - Algorithm runtime (ms)
+  - Winner and performance insights
+
+### 3. Step-by-Step Playback Controls
+- **Interactive VCR Controls**:
+  - **Play / Pause**: Start and halt animation at any frame.
+  - **Next Step (⏭)**: Step forward node-by-node.
+  - **Previous Step (⏮)**: Step backward to examine previous state expansions.
+- **Scrubbable Progress Bar**: Jump directly to any point in the search sequence using the slider.
+- **Speed Slider**: Real-time delay adjustment (5ms to 60ms).
+
+### 4. Backend Service (Save & Share Grids)
+- **RESTful API**: Built with Node.js, Express, and Mongoose.
+  - `POST /api/grids`: Saves walls, mud cells, start, end, and maze name; returns a 6-character short ID (e.g. `a15784`).
+  - `GET /api/grids/:id`: Retrieves a saved grid layout.
+  - `GET /api/grids`: Lists the latest 20 saved community grids.
+- **One-Click Sharing**: Generates shareable URLs like `http://localhost:3000/?grid=a15784`.
+- **Auto-Loading**: Opening a shared link automatically pulls and loads the maze onto the grid.
 
 ---
 
@@ -39,26 +51,39 @@ An interactive, responsive path-finding visualizer built with **React** showcasi
 PathX/
 ├── .gitignore
 ├── README.md
+├── backend/
+│   ├── .env                  # PORT=5000, MONGO_URI
+│   ├── .gitignore
+│   ├── package.json
+│   ├── server.js             # Express app, Mongoose connection, CORS
+│   ├── models/
+│   │   └── Grid.js           # Mongoose Grid schema
+│   └── routes/
+│       └── gridRoutes.js     # API endpoints: POST, GET by id, GET all
 └── frontend/
+    ├── .env                  # REACT_APP_API_URL=http://localhost:5000
+    ├── package.json
     ├── public/
     │   └── index.html
-    ├── src/
-    │   ├── algorithms/
-    │   │   ├── heap.js       # Array-based binary MinHeap class
-    │   │   ├── utils.js      # getNeighbors, manhattan distance, buildPath
-    │   │   ├── bfs.js        # Pure BFS implementation
-    │   │   ├── dfs.js        # Pure DFS implementation
-    │   │   ├── dijkstra.js   # Pure Dijkstra implementation
-    │   │   └── astar.js      # Pure A* implementation
-    │   ├── components/
-    │   │   ├── Cell.js       # Memoized grid cell component
-    │   │   ├── Grid.js       # 20x40 interactive grid container
-    │   │   ├── Controls.js   # Toolbar, algorithm select, buttons, slider
-    │   │   └── Stats.js      # Metrics line & color legend
-    │   ├── App.js            # Main application state & animation loop
-    │   ├── App.css           # Styling, keyframe animations, dark theme
-    │   └── index.js          # React DOM entry point
-    └── package.json
+    └── src/
+        ├── algorithms/
+        │   ├── heap.js       # Array-based binary MinHeap class
+        │   ├── utils.js      # getNeighbors, manhattan, calculatePathCost
+        │   ├── bfs.js        # Pure BFS (start, end, walls, weights)
+        │   ├── dfs.js        # Pure DFS (start, end, walls, weights)
+        │   ├── dijkstra.js   # Pure Dijkstra (start, end, walls, weights)
+        │   └── astar.js      # Pure A* (start, end, walls, weights)
+        ├── components/
+        │   ├── Cell.js       # Memoized grid cell with mud badge
+        │   ├── Grid.js       # 20x40 interactive grid container
+        │   ├── Controls.js   # Toolbar, Compare toggle, Save/Load buttons
+        │   ├── Stats.js      # Real-time metrics & color legend
+        │   ├── CompareTable.js # Side-by-side performance table
+        │   ├── StepControls.js # Pause, Play, Step Next/Prev, Progress Bar
+        │   └── GridModal.js  # Save and Load dialogs with shareable links
+        ├── App.js            # Main application state, playback loop, routing
+        ├── App.css           # Responsive styling, keyframes, dark mode
+        └── index.js          # React DOM entry point
 ```
 
 ---
@@ -68,43 +93,63 @@ PathX/
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v16 or higher)
-- npm or yarn
+- Optional: Local [MongoDB](https://www.mongodb.com/) instance or MongoDB Atlas URI (a built-in fallback operates gracefully if MongoDB is offline)
 
-### Installation & Running
+---
 
-1. **Clone the repository**:
+### 1. Start the Backend
+
+1. Navigate to the backend directory:
    ```bash
-   git clone https://github.com/RohaanAhmadQuadri/PathX.git
-   cd PathX
+   cd PathX/backend
    ```
-
-2. **Navigate into the frontend directory**:
-   ```bash
-   cd frontend
-   ```
-
-3. **Install dependencies**:
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-4. **Start the development server**:
+3. Configure `.env` (optional, defaults provided):
+   ```env
+   PORT=5000
+   MONGO_URI=mongodb://127.0.0.1:27017/pathx
+   ```
+4. Start the server:
    ```bash
    npm start
    ```
+   Server runs on [http://localhost:5000](http://localhost:5000).
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+---
+
+### 2. Start the Frontend
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd PathX/frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Ensure `.env` points to the backend:
+   ```env
+   REACT_APP_API_URL=http://localhost:5000
+   ```
+4. Start the React development server:
+   ```bash
+   npm start
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
 ## 📖 Algorithm Comparison
 
-| Algorithm | Data Structure | Guarantees Shortest Path? | Time Complexity | Best Use Case |
-|-----------|----------------|----------------------------|-----------------|---------------|
-| **BFS** | Queue (FIFO) | ✅ Yes | $O(V + E)$ | Unweighted graphs, shallow goals |
-| **DFS** | Stack (LIFO) | ❌ No | $O(V + E)$ | Maze exploration, cycle detection |
-| **Dijkstra** | Min-Heap (Priority Queue) | ✅ Yes | $O((V + E) \log V)$ | Weighted & unweighted graphs |
-| **A\*** | Min-Heap + Manhattan Heuristic | ✅ Yes (admissible $h$) | $O(E \log V)$ | Directed pathfinding toward target |
+| Algorithm | Data Structure | Weighted Support | Guarantees Shortest Path? | Time Complexity |
+|-----------|----------------|------------------|----------------------------|-----------------|
+| **BFS** | Queue (FIFO) | ❌ No (costs = 1) | ✅ Yes (unweighted only) | $O(V + E)$ |
+| **DFS** | Stack (LIFO) | ❌ No (costs = 1) | ❌ No | $O(V + E)$ |
+| **Dijkstra** | Min-Heap Priority Queue | ✅ Yes (mud = 5) | ✅ Yes (optimal cost) | $O((V + E) \log V)$ |
+| **A\*** | Min-Heap + Manhattan Heuristic | ✅ Yes (mud = 5) | ✅ Yes (admissible heuristic) | $O(E \log V)$ |
 
 ---
 

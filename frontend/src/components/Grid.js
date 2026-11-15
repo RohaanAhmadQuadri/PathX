@@ -12,11 +12,13 @@ function Grid({
   startCell,
   endCell,
   walls,
+  weights,
   visitedCells,
   pathCells,
   onCellMouseDown,
   onCellMouseEnter,
   onMouseUp,
+  onCellContextMenu,
 }) {
   // Generate cell IDs [0, 1, 2, ..., 799] once
   const cellIds = useMemo(() => {
@@ -33,6 +35,7 @@ function Grid({
       <div
         className="grid-container"
         onMouseLeave={onMouseUp}
+        onContextMenu={(e) => e.preventDefault()}
         role="grid"
         aria-label="Pathfinding visualizer grid"
       >
@@ -43,11 +46,13 @@ function Grid({
             isStart={id === startCell}
             isEnd={id === endCell}
             isWall={walls.has(id)}
+            isMud={weights ? weights.has(id) : false}
             isVisited={visitedCells.has(id)}
             isPath={pathCells.has(id)}
             onMouseDown={onCellMouseDown}
             onMouseEnter={onCellMouseEnter}
             onMouseUp={onMouseUp}
+            onContextMenu={onCellContextMenu}
           />
         ))}
       </div>

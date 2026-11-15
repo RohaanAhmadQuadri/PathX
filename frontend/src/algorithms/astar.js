@@ -1,5 +1,5 @@
 import { MinHeap } from './heap.js';
-import { getNeighbors, manhattan, buildPath } from './utils.js';
+import { getNeighbors, manhattan, buildPath, getCellWeight } from './utils.js';
 
 /**
  * A* (A-Star) Search Algorithm
@@ -10,24 +10,28 @@ import { getNeighbors, manhattan, buildPath } from './utils.js';
  *   2. h(n): The heuristic estimated cost from node n to the target end node.
  *   3. f(n) = g(n) + h(n): Total estimated cost of path through node n.
  * 
+ * In a weighted grid, each step has a cost defined by the target cell:
+ *   - Normal cell: cost = 1
+ *   - Mud cell:    cost = 5
+ * 
  * Heuristic used:
  * Manhattan Distance (|Δrow| + |Δcol|).
- * On a 4-directional grid with uniform step costs of 1, Manhattan distance
- * is admissible (never overestimates the true remaining distance) and consistent,
- * guaranteeing the optimal (shortest) path!
+ * Since the minimum step cost on any cell is 1, Manhattan distance never
+ * overestimates the true cost to reach the goal (admissible heuristic).
  * 
  * Properties:
  * - Much faster and explores fewer nodes than Dijkstra because it is directed toward the goal.
- * - Guarantees shortest path with an admissible heuristic.
- * - Time Complexity: O(E log V) in practice much faster due to heuristic pruning.
+ * - Guarantees shortest (cheapest) path with an admissible heuristic.
+ * - Time Complexity: O(E log V)
  * - Space Complexity: O(V)
  * 
  * @param {number} start - Starting cell ID
  * @param {number} end - Target cell ID
  * @param {Set<number>} walls - Set of cell IDs that act as obstacles
+ * @param {Map<number, number>|Object} [weights] - Map of cell IDs to weights (e.g. mud = 5)
  * @returns {{ visited: number[], path: number[] }} Explored order and shortest path
  */
-export function astar(start, end, walls) {
+export function astar(start, end, walls, weights) {
   // Edge case: Start and End are the same cell
   if (start === end) {
     return { visited: [start], path: [start] };
@@ -69,11 +73,12 @@ export function astar(start, end, walls) {
         continue;
       }
 
-      // Tentative gScore: distance from start to neighbor through current
-      const tentativeG = currentG + 1;
+      // Tentative gScore: distance from start to neighbor through current + neighbor step cost
+      const stepCost = getCellWeight(neighbor, weights);
+      const tentativeG = currentG + stepCost;
       const prevG = gScore[neighbor] !== undefined ? gScore[neighbor] : Infinity;
 
-      // Found a better path to neighbor
+      // Found a better (cheaper) path to neighbor
       if (tentativeG < prevG) {
         cameFrom[neighbor] = current;
         gScore[neighbor] = tentativeG;

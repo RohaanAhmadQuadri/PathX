@@ -4,7 +4,7 @@ import React from 'react';
  * Cell Component
  * 
  * Represents an individual cell in the 20x40 grid.
- * Uses React.memo to ensure that only cells whose state (start, end, wall, visited, path)
+ * Uses React.memo to ensure that only cells whose state (start, end, wall, mud/weight, visited, path)
  * changes will re-render during animations or dragging.
  */
 function Cell({
@@ -12,40 +12,57 @@ function Cell({
   isStart,
   isEnd,
   isWall,
+  isMud,
   isVisited,
   isPath,
   onMouseDown,
   onMouseEnter,
   onMouseUp,
+  onContextMenu,
 }) {
   // Determine CSS classes based on cell state
-  let cellType = '';
+  const classNames = ['cell'];
+
   if (isStart) {
-    cellType = 'cell-start';
+    classNames.push('cell-start');
   } else if (isEnd) {
-    cellType = 'cell-end';
+    classNames.push('cell-end');
   } else if (isWall) {
-    cellType = 'cell-wall';
-  } else if (isPath) {
-    cellType = 'cell-path';
-  } else if (isVisited) {
-    cellType = 'cell-visited';
+    classNames.push('cell-wall');
+  } else {
+    // Normal, Visited, or Path cell
+    if (isMud) {
+      classNames.push('cell-mud');
+    }
+    if (isPath) {
+      classNames.push('cell-path');
+    } else if (isVisited) {
+      classNames.push('cell-visited');
+    }
   }
 
   return (
     <div
       id={`cell-${id}`}
-      className={`cell ${cellType}`}
-      onMouseDown={() => onMouseDown(id)}
+      className={classNames.join(' ')}
+      onMouseDown={(e) => onMouseDown(id, e)}
       onMouseEnter={() => onMouseEnter(id)}
       onMouseUp={onMouseUp}
-      onDragStart={(e) => e.preventDefault()} // Prevent browser default drag behavior
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (onContextMenu) onContextMenu(id);
+      }}
+      onDragStart={(e) => e.preventDefault()} // Prevent browser default ghost dragging
       role="gridcell"
-      aria-label={`Cell ${id}`}
+      aria-label={`Cell ${id}${isMud ? ' (Mud weight 5)' : ''}`}
     >
       {/* Icon markers for start and end points */}
       {isStart && <span className="cell-marker start-marker">&#9654;</span>}
       {isEnd && <span className="cell-marker end-marker">&#9678;</span>}
+      {/* Mud weight indicator for non-terminal cells */}
+      {isMud && !isStart && !isEnd && !isWall && (
+        <span className="mud-badge" title="Mud cell (Weight 5)">5</span>
+      )}
     </div>
   );
 }

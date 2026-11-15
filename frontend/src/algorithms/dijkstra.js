@@ -1,5 +1,5 @@
 import { MinHeap } from './heap.js';
-import { getNeighbors, buildPath } from './utils.js';
+import { getNeighbors, buildPath, getCellWeight } from './utils.js';
 
 /**
  * Dijkstra's Shortest Path Algorithm
@@ -8,21 +8,22 @@ import { getNeighbors, buildPath } from './utils.js';
  * Dijkstra's algorithm uses a Priority Queue (Min-Heap) to greedily expand
  * the node with the lowest known distance from the starting node.
  * 
- * In an unweighted grid, every step between adjacent cells has a cost of 1.
- * Dijkstra relaxes edge weights: if distance(u) + 1 < distance(v), update distance(v).
+ * In a weighted grid, each step has a cost defined by the target cell:
+ *   - Normal cell: cost = 1
+ *   - Mud cell:    cost = 5
  * 
  * Properties:
- * - Guarantees the shortest path for non-negative edge weights!
- * - On uniform grids, it expands radially in concentric circles.
+ * - Guarantees the shortest (cheapest) path for non-negative edge weights!
  * - Time Complexity: O((V + E) log V) using a binary min-heap.
  * - Space Complexity: O(V)
  * 
  * @param {number} start - Starting cell ID
  * @param {number} end - Target cell ID
  * @param {Set<number>} walls - Set of cell IDs that act as obstacles
+ * @param {Map<number, number>|Object} [weights] - Map of cell IDs to weights (e.g. mud = 5)
  * @returns {{ visited: number[], path: number[] }} Explored order and shortest path
  */
-export function dijkstra(start, end, walls) {
+export function dijkstra(start, end, walls, weights) {
   // Edge case: Start and End are the same cell
   if (start === end) {
     return { visited: [start], path: [start] };
@@ -61,10 +62,11 @@ export function dijkstra(start, end, walls) {
         continue;
       }
 
-      const newDist = currentDist + 1; // Uniform edge weight of 1
+      const stepCost = getCellWeight(neighbor, weights);
+      const newDist = currentDist + stepCost;
       const prevDist = distances[neighbor] !== undefined ? distances[neighbor] : Infinity;
 
-      // Relaxation step: found a shorter path to neighbor
+      // Relaxation step: found a cheaper path to neighbor
       if (newDist < prevDist) {
         distances[neighbor] = newDist;
         cameFrom[neighbor] = current;
